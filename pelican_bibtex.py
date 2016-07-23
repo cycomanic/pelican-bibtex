@@ -12,6 +12,8 @@ websites.
 # Unlicense (see UNLICENSE for details)
 
 import logging
+import codecs
+import latexcodec
 logger = logging.getLogger(__name__)
 
 from pelican import signals
