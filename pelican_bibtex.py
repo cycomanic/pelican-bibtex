@@ -57,8 +57,6 @@ def add_publications(generator, metadata):
         List of tuples (key, year, text, bibtex, pdf, slides, poster).
         See Readme.md for more details.
     """
-    if 'PUBLICATIONS_SRC' not in generator.settings:
-        return
     try:
         from StringIO import StringIO
     except ImportError:
