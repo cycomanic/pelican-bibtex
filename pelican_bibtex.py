@@ -43,17 +43,17 @@ def add_publications(generator, metadata):
 
     Output
     ------
-    generator.context['journals']:
+    metadata.context['journals']:
         List of tuples (key, year, text, bibtex, pdf, slides, poster).
-    generator.context['conferences']:
+    metadata.context['conferences']:
         List of tuples (key, year, text, bibtex, pdf, slides, poster).
-    generator.context['invited']:
+    metadata.context['invited']:
         List of tuples (key, year, text, bibtex, pdf, slides, poster).
-    generator.context['patent']:
+    metadata.context['patent']:
         List of tuples (key, year, text, bibtex, pdf, slides, poster).
-    generator.context['book_chapter']:
+    metadata.context['book_chapter']:
         List of tuples (key, year, text, bibtex, pdf, slides, poster).
-    generator.context['book']:
+    metadata.context['book']:
         List of tuples (key, year, text, bibtex, pdf, slides, poster).
         See Readme.md for more details.
     """
@@ -73,7 +73,7 @@ def add_publications(generator, metadata):
     bibtypes = ['journal', 'conference', 'invited', 'patent', 'book_chapter', 'book']
     for bibtype in bibtypes:
         try:
-            refs_file = generator.metadata[bibtype+'_src']
+            refs_file = metadata[bibtype+'_src']
         except:
             continue
         try:
