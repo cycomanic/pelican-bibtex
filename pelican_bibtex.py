@@ -106,6 +106,7 @@ def add_publications(generator, metadata):
             bibdata_this = BibliographyData(entries={key: entry})
             Writer().write_stream(bibdata_this, bib_buf)
             text = formatted_entry.text.render(html_backend)
+            text = text.decode('latex').replace('{', '').replace('}', '')
 
             publications.append((key,
                                  year,
