@@ -27,33 +27,33 @@ def add_publications(generator, metadata):
 
     Configuration
     -------------
-    generator.metadata['journal_src']:
+    metadata['journal_src']:
         local path to the BibTeX file for journal articles to read.
-    generator.metadata['conference_src']:
+    metadata['conference_src']:
         local path to the BibTeX file for conference articles to read.
-    generator.metadata['invited_src']:
+    metadata['invited_src']:
         local path to the BibTeX file for invited conference articles to read.
-    generator.metadata['patents_src']:
+    metadata['patents_src']:
         local path to the BibTeX file for patents to read.
-    generator.metadata['bookchapter_src']:
+    metadata['bookchapter_src']:
         local path to the BibTeX file for book chapters to read.
-    generator.metadata['book_src']:
+    metadata['book_src']:
         local path to the BibTeX file for book read.
 
 
     Output
     ------
-    metadata.context['journals']:
+    generator.context['journals']:
         List of tuples (key, year, text, bibtex, pdf, slides, poster).
-    metadata.context['conferences']:
+    generator.context['conferences']:
         List of tuples (key, year, text, bibtex, pdf, slides, poster).
-    metadata.context['invited']:
+    generator.context['invited']:
         List of tuples (key, year, text, bibtex, pdf, slides, poster).
-    metadata.context['patent']:
+    generator.context['patent']:
         List of tuples (key, year, text, bibtex, pdf, slides, poster).
-    metadata.context['book_chapter']:
+    generator.context['book_chapter']:
         List of tuples (key, year, text, bibtex, pdf, slides, poster).
-    metadata.context['book']:
+    generator.context['book']:
         List of tuples (key, year, text, bibtex, pdf, slides, poster).
         See Readme.md for more details.
     """
