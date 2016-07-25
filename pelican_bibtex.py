@@ -43,9 +43,9 @@ def add_publications(generator, metadata):
 
     Output
     ------
-    generator.context['journals']:
+    generator.context['journal']:
         List of tuples (key, year, text, bibtex, pdf, slides, poster).
-    generator.context['conferences']:
+    generator.context['conference']:
         List of tuples (key, year, text, bibtex, pdf, slides, poster).
     generator.context['invited']:
         List of tuples (key, year, text, bibtex, pdf, slides, poster).
@@ -66,11 +66,35 @@ def add_publications(generator, metadata):
         from pybtex.database.output.bibtex import Writer
         from pybtex.database import BibliographyData, PybtexError
         from pybtex.backends import html
-        from pybtex.style.formatting import plain
+        from pybtex.style.formatting import unsrt
+        from pybtex.style.formatting import BaseStyle, toplevel
+        from pybtex.style.template import (
+            join, words, field, optional, first_of,
+            names, sentence, tag, optional_field, href
+            )
+
     except ImportError:
         logger.warn('`pelican_bibtex` failed to load dependency `pybtex`')
         return
-    bibtypes = ['journal', 'conference', 'invited', 'patent', 'book_chapter', 'book']
+    bibtypes = ['journal', 'conference', 'invited', 'patent', 'book_chapter',
+                'book']
+
+    html_backend = html.Backend()
+    html_backend.tags['strong'] = u'strong'
+
+    class Naturestyle(unsrt.Style):
+        def format_article(self, e):
+            template = toplevel [
+                self.format_names('author'),
+                self.format_title(e, 'title'),
+                join [tag('emph') [field('journal')], ' ',
+                    tag('strong')[field('volume')], ', ', unsrt.pages,
+                    ' (', field('year'), ')'],
+                sentence(capfirst=False) [ optional_field('note') ],
+                self.format_web_refs(e),
+                ]
+            return template.format_data(e)
+
     for bibtype in bibtypes:
         try:
             refs_file = metadata[bibtype+'_src']
@@ -87,8 +111,7 @@ def add_publications(generator, metadata):
         publications = []
 
         # format entries
-        plain_style = plain.Style()
-        html_backend = html.Backend()
+        plain_style = Naturestyle()
         formatted_entries = plain_style.format_entries(bibdata_all.entries.values())
 
         for formatted_entry in formatted_entries:
@@ -106,7 +129,7 @@ def add_publications(generator, metadata):
             bibdata_this = BibliographyData(entries={key: entry})
             Writer().write_stream(bibdata_this, bib_buf)
             text = formatted_entry.text.render(html_backend)
-            text = text.decode('latex').replace('{', '').replace('}', '')
+            text = text.decode('ulatex').replace('{', '').replace('}', '')
 
             publications.append((key,
                                  year,
@@ -117,7 +140,6 @@ def add_publications(generator, metadata):
                                  poster))
 
         generator.context[bibtype] = publications
-
 
 def register():
     signals.page_generator_context.connect(add_publications)
