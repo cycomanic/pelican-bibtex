@@ -9,6 +9,7 @@ The use case for now is to generate a ``Publications'' page for academic
 websites.
 """
 # Author: Vlad Niculae <vlad@vene.ro>
+# Modified by: Jochen Schroeder <cycomanic@gmail.com>
 # Unlicense (see UNLICENSE for details)
 
 import logging
