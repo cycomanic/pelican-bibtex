@@ -134,7 +134,6 @@ def add_publications(generator, metadata):
             slides = entry.fields.get('slides', None)
             poster = entry.fields.get('poster', None)
             url = entry.fields.get('url', None)
-            entry['url'] = None
             if url is not None:
                 pdf = url
 
