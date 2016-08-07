@@ -96,6 +96,15 @@ def add_publications(generator, metadata):
                 ]
             return template.format_data(e)
 
+        def format_web_refs(self, e):
+        # based on urlbst output.web.refs
+            return sentence(capfirst=False) [
+                #optional [ self.format_url(e) ],
+                optional [ self.format_eprint(e) ],
+                optional [ self.format_pubmed(e) ],
+                optional [ self.format_doi(e) ],
+                ]
+
     for bibtype in bibtypes:
         try:
             refs_file = metadata[bibtype+'_src']
