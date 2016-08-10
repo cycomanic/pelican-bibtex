@@ -77,8 +77,8 @@ def add_publications(generator, metadata):
     except ImportError:
         logger.warn('`pelican_bibtex` failed to load dependency `pybtex`')
         return
-    bibtypes = ['journal', 'conference', 'invited', 'patent', 'book_chapter',
-                'book']
+    bibtypes = ['journal', 'conference',  'patent', 'book_chapter',
+                'book' ]
 
     html_backend = html.Backend()
     html_backend.tags['strong'] = u'strong'
@@ -119,6 +119,8 @@ def add_publications(generator, metadata):
             return
 
         publications = []
+        pdp = []
+        invited = []
 
         # format entries
         plain_style = Naturestyle()
@@ -144,7 +146,34 @@ def add_publications(generator, metadata):
             text = formatted_entry.text.render(html_backend)
             text = text.decode('ulatex').replace('{', '').replace('}', '')
 
-            publications.append((key,
+            if  bibtype is 'conference':
+                logger.warn("conference bibtype")
+                if 'postdeadline' in entry.fields.get('keywords'):
+                    pdp.append((key,
+                                 year,
+                                 text,
+                                 bib_buf.getvalue(),
+                                 pdf,
+                                 slides,
+                                 poster))
+                elif 'invited' in entry.fields.get('keywords'):
+                    invited.append((key,
+                                 year,
+                                 text,
+                                 bib_buf.getvalue(),
+                                 pdf,
+                                 slides,
+                                 poster))
+                else:
+                    publications.append((key,
+                                 year,
+                                 text,
+                                 bib_buf.getvalue(),
+                                 pdf,
+                                 slides,
+                                 poster))
+            else:
+                publications.append((key,
                                  year,
                                  text,
                                  bib_buf.getvalue(),
@@ -152,7 +181,13 @@ def add_publications(generator, metadata):
                                  slides,
                                  poster))
 
+        if bibtype is 'conference':
+            generator.context['postdeadline'] = pdp
+            generator.context['postdeadlineNos'] = len(pdp)
+            generator.context['invited'] = invited
+            generator.context['invitedNos'] = len(invited)
         generator.context[bibtype] = publications
+        generator.context[bibtype+"Nos"] = len(publications)
 
 def register():
     signals.page_generator_context.connect(add_publications)
