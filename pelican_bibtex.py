@@ -147,7 +147,6 @@ def add_publications(generator, metadata):
             text = text.decode('ulatex').replace('{', '').replace('}', '')
 
             if  bibtype is 'conference':
-                logger.warn("conference bibtype")
                 if 'postdeadline' in entry.fields.get('keywords'):
                     pdp.append((key,
                                  year,
