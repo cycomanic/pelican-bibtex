@@ -1,1 +1,1 @@
-from .pelican_bibtex import *
+from .pelican_perpagepublications import *
