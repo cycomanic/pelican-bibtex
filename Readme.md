@@ -56,6 +56,15 @@ fields are stripped from the generated BibTeX (found in the `bibtex` field).
 
 2. A variable named after bibtype + `Nos` (e.g. `journalNos`) giving the number of publications of that type.
 
+In addition to the `journal`, `conference`, `patent`, `book_chapter` and `book` type  publication list which are generated from the specified src databases, there are also two special lists which are generated from the conference list: `invited` and `postdeadline`, these contain the conference entries that have either an `invited` or `postdeadline` keyword in the bibtex file, for example:
+```
+@inproceedings{
+    bar11
+    ...
+    keywords = {foo, invited,},
+}
+```
+The entries with these keywords will be removed from the conference list.
 
 Template Example
 ================
