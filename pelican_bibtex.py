@@ -1,15 +1,16 @@
 """
-Pelican BibTeX
+Pelican PerPagePublications
 ==============
 
 A Pelican plugin that populates the context with a list of formatted
-citations, loaded from a BibTeX file at a configurable path.
+citations, loaded from a BibTeX several bibtex files  given in the page or post
+metadata. This is based on the Pelica Bibtex plugin by Vlad Niculae.
 
-The use case for now is to generate a ``Publications'' page for academic
-websites.
+This plugin will create per type publication lists (i.e. conference, books, journals ...)
+based on bibtex databases given in the page/post metadata for example for a CV.
 """
-# Author: Vlad Niculae <vlad@vene.ro>
-# Modified by: Jochen Schroeder <cycomanic@gmail.com>
+# Author of Pelican Bibtex: Vlad Niculae <vlad@vene.ro>
+# Author of PerPagePublications: Jochen Schroeder <cycomanic@gmail.com>
 # Unlicense (see UNLICENSE for details)
 
 import logging
@@ -32,8 +33,6 @@ def add_publications(generator, metadata):
         local path to the BibTeX file for journal articles to read.
     metadata['conference_src']:
         local path to the BibTeX file for conference articles to read.
-    metadata['invited_src']:
-        local path to the BibTeX file for invited conference articles to read.
     metadata['patents_src']:
         local path to the BibTeX file for patents to read.
     metadata['bookchapter_src']:
@@ -45,17 +44,35 @@ def add_publications(generator, metadata):
     Output
     ------
     generator.context['journal']:
-        List of tuples (key, year, text, bibtex, pdf, slides, poster).
+        List of tuples (key, year, text, bibtex, url, slides, poster).
     generator.context['conference']:
-        List of tuples (key, year, text, bibtex, pdf, slides, poster).
+        List of tuples (key, year, text, bibtex, url, slides, poster).
     generator.context['invited']:
-        List of tuples (key, year, text, bibtex, pdf, slides, poster).
+        List of tuples (key, year, text, bibtex, url, slides, poster).
+    generator.context['postdeadline']:
+        List of tuples (key, year, text, bibtex, url, slides, poster).
     generator.context['patent']:
-        List of tuples (key, year, text, bibtex, pdf, slides, poster).
+        List of tuples (key, year, text, bibtex, url, slides, poster).
     generator.context['book_chapter']:
-        List of tuples (key, year, text, bibtex, pdf, slides, poster).
+        List of tuples (key, year, text, bibtex, url, slides, poster).
     generator.context['book']:
-        List of tuples (key, year, text, bibtex, pdf, slides, poster).
+        List of tuples (key, year, text, bibtex, url, slides, poster).
+    generator.context['journalNos']:
+        Integer: number of journal publications
+    generator.context['conferenceNos']:
+        Integer: number of journal publications
+    generator.context['invited']:
+        Integer: number of invited conference publications
+    generator.context['postdeadline']:
+        List of tuples (key, year, text, bibtex, url, slides, poster).
+        Integer: number of postdeadline publications
+    generator.context['patent']:
+        List of tuples (key, year, text, bibtex, url, slides, poster).
+        Integer: number of patent publications
+    generator.context['book_chapter']:
+        Integer: number of book_chapter publications
+    generator.context['book']:
+        Integer: number of book publications
         See Readme.md for more details.
     """
     try:
