@@ -98,7 +98,7 @@ def add_publications(generator, metadata):
                 'book' ]
 
     html_backend = html.Backend()
-    html_backend.tags['strong'] = u'strong'
+    #html_backend.tags['strong'] = u'strong'
 
     class Naturestyle(unsrt.Style):
         def format_article(self, e):
@@ -121,6 +121,13 @@ def add_publications(generator, metadata):
                 optional [ self.format_pubmed(e) ],
                 optional [ self.format_doi(e) ],
                 ]
+        def format_patent(self, e):
+            template = toplevel [
+                self.format_names('author'),
+                self.format_title(e, 'title'),
+                join [tag('emph') [field('number')], ' ', '(', field('year'), ')']
+            ]
+            return template.format_data(e)
 
     for bibtype in bibtypes:
         try:
