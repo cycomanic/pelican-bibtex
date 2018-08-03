@@ -139,6 +139,8 @@ def add_publications(generator, metadata):
     invited = []
     conferences = []
     patents = []
+    book_chapters = []
+    books = []
 
 
     # format entries
@@ -179,6 +181,11 @@ def add_publications(generator, metadata):
             articles.append(out)
         elif bibtype in ['patent']:
             patents.append(out)
+        elif bibtype in ['book_chapter']:
+            book_chapters.append(out)
+        elif bibtype in ['book']:
+            books.append(out)
+
 
 
     generator.context['postdeadline'] = pdp
@@ -191,6 +198,10 @@ def add_publications(generator, metadata):
     generator.context['patentNos'] = len(patents)
     generator.context['conference'] = conferences
     generator.context['conferenceNos'] = len(conferences)
+    generator.context['book'] = books
+    generator.context['bookNos'] = len(books)
+    generator.context['book_chapter'] = book_chapters
+    generator.context['book_chapterNos'] = len(book_chapters)
 
 
 def register():
