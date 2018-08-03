@@ -25,7 +25,7 @@ from pelican import signals
 __version__ = '0.1.0'
 
 
-def add_publications(generator):
+def add_publications(generator, metadata):
     """
     Populates context with a list of BibTeX publications.
 
@@ -123,7 +123,7 @@ def add_publications(generator):
             return template.format_data(e)
 
     try:
-        refs_file = generator.settings['PUBLICATIONS_SRC']
+        refs_file = metadata["publications_src"]
     except:
         sys.exit()
     try:
@@ -191,17 +191,7 @@ def add_publications(generator):
     generator.context['patentNos'] = len(patents)
     generator.context['conference'] = conferences
     generator.context['conferenceNos'] = len(conferences)
-    dd = mkdtemp(prefix="pelican-publications")
-    f = open(dd+"/publicationnumbers.html", "w")
-    f.write("{{% set journalNos = '{}' %}}\n".format(len(articles)))
-    f.write("{{% set invitedNos = '{}' %}}\n".format(len(invited)))
-    f.write("{{% set conferenceNos = '{}' %}}\n".format(len(conferences)))
-    f.write("{{% set patentNos = '{}' %}}\n".format(len(patents)))
-    f.write("{{% set postdeadlineNos = '{}' %}}\n".format(len(pdp)))
-    f.close()
-    generator.settings['JINJA2CONTENT_TEMPLATES'] = [dd]
-    print(dd)
 
 
 def register():
-    signals.generator_init.connect(add_publications)
+    signals.page_generator_context.connect(add_publications)
