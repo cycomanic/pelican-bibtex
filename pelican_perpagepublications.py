@@ -17,30 +17,23 @@ import logging
 import codecs
 import latexcodec
 logger = logging.getLogger(__name__)
+from tempfile import TemporaryDirectory, mkdtemp
+import os
 
 from pelican import signals
 
 __version__ = '0.1.0'
 
 
-def add_publications(generator, metadata):
+def add_publications(generator):
     """
     Populates context with a list of BibTeX publications.
 
     Configuration
     -------------
-    metadata['journal_src']:
-        local path to the BibTeX file for journal articles to read.
-    metadata['conference_src']:
-        local path to the BibTeX file for conference articles to read.
-    metadata['patents_src']:
-        local path to the BibTeX file for patents to read.
-    metadata['bookchapter_src']:
-        local path to the BibTeX file for book chapters to read.
-    metadata['book_src']:
-        local path to the BibTeX file for book read.
-
-
+    generator.settings['Publication_SRC']
+     local path to the Bibtex file to read
+    
     Output
     ------
     generator.context['journal']:
@@ -129,89 +122,86 @@ def add_publications(generator, metadata):
             ]
             return template.format_data(e)
 
-    for bibtype in bibtypes:
-        try:
-            refs_file = metadata[bibtype+'_src']
-        except:
-            continue
-        try:
-            bibdata_all = Parser().parse_file(refs_file)
-        except PybtexError as e:
-            logger.warn('`pelican_bibtex` failed to parse file %s: %s' % (
-                refs_file,
-                str(e)))
-            return
+    try:
+        refs_file = generator.settings['PUBLICATIONS_SRC']
+    except:
+        sys.exit()
+    try:
+        bibdata_all = Parser().parse_file(refs_file)
+    except PybtexError as e:
+        logger.warn('`pelican_bibtex` failed to parse file %s: %s' % (
+            refs_file,
+            str(e)))
+        return
 
-        publications = []
-        pdp = []
-        invited = []
+    articles = []
+    pdp = []
+    invited = []
+    conferences = []
+    patents = []
 
-        # format entries
-        plain_style = Naturestyle()
-        formatted_entries = plain_style.format_entries(bibdata_all.entries.values())
 
-        for formatted_entry in formatted_entries:
-            key = formatted_entry.key
-            entry = bibdata_all.entries[key]
-            year = entry.fields.get('year')
-            # This shouldn't really stay in the field dict
-            # but new versions of pybtex don't support pop
-            pdf = entry.fields.get('pdf', None)
-            slides = entry.fields.get('slides', None)
-            poster = entry.fields.get('poster', None)
-            url = entry.fields.get('url', None)
-            if url is not None:
-                pdf = url
+    # format entries
+    plain_style = Naturestyle()
+    formatted_entries = plain_style.format_entries(bibdata_all.entries.values())
 
-            #render the bibtex string for the entry
-            bib_buf = StringIO()
-            bibdata_this = BibliographyData(entries={key: entry})
-            Writer().write_stream(bibdata_this, bib_buf)
-            text = formatted_entry.text.render(html_backend)
-            #text = text.decode('ulatex').replace('{', '').replace('}', '')
-            text = codecs.decode(text, 'ulatex').replace('{', '').replace('}', '')
+    for formatted_entry in formatted_entries:
+        key = formatted_entry.key
+        entry = bibdata_all.entries[key]
+        year = entry.fields.get('year')
+        # This shouldn't really stay in the field dict
+        # but new versions of pybtex don't support pop
+        pdf = entry.fields.get('pdf', None)
+        slides = entry.fields.get('slides', None)
+        poster = entry.fields.get('poster', None)
+        url = entry.fields.get('url', None)
+        if url is not None:
+            pdf = url
 
-            if  bibtype is 'conference':
-                if 'postdeadline' in entry.fields.get('keywords'):
-                    pdp.append((key,
-                                 year,
-                                 text,
-                                 bib_buf.getvalue(),
-                                 pdf,
-                                 slides,
-                                 poster))
-                elif 'invited' in entry.fields.get('keywords'):
-                    invited.append((key,
-                                 year,
-                                 text,
-                                 bib_buf.getvalue(),
-                                 pdf,
-                                 slides,
-                                 poster))
-                else:
-                    publications.append((key,
-                                 year,
-                                 text,
-                                 bib_buf.getvalue(),
-                                 pdf,
-                                 slides,
-                                 poster))
+        #render the bibtex string for the entry
+        bib_buf = StringIO()
+        bibdata_this = BibliographyData(entries={key: entry})
+        Writer().write_stream(bibdata_this, bib_buf)
+        text = formatted_entry.text.render(html_backend)
+        #text = text.decode('ulatex').replace('{', '').replace('}', '')
+        text = codecs.decode(text, 'ulatex').replace('{', '').replace('}', '')
+        bibtype = entry.type
+        out = (key, year, text, bib_buf.getvalue(), pdf, slides, poster)
+
+        if bibtype in ['conference' , 'inproceedings']:
+            if 'postdeadline' in entry.fields.get('keywords'):
+                pdp.append(out)
+            elif 'invited' in entry.fields.get('keywords'):
+                invited.append(out)
             else:
-                publications.append((key,
-                                 year,
-                                 text,
-                                 bib_buf.getvalue(),
-                                 pdf,
-                                 slides,
-                                 poster))
+                conferences.append(out)
+        elif bibtype in ['article']:
+            articles.append(out)
+        elif bibtype in ['patent']:
+            patents.append(out)
 
-        if bibtype is 'conference':
-            generator.context['postdeadline'] = pdp
-            generator.context['postdeadlineNos'] = len(pdp)
-            generator.context['invited'] = invited
-            generator.context['invitedNos'] = len(invited)
-        generator.context[bibtype] = publications
-        generator.context[bibtype+"Nos"] = len(publications)
+
+    generator.context['postdeadline'] = pdp
+    generator.context['postdeadlineNos'] = len(pdp)
+    generator.context['invited'] = invited
+    generator.context['invitedNos'] = len(invited)
+    generator.context['journal'] = articles
+    generator.context['journalNos'] = len(articles)
+    generator.context['patent'] = patents
+    generator.context['patentNos'] = len(patents)
+    generator.context['conference'] = conferences
+    generator.context['conferenceNos'] = len(conferences)
+    dd = mkdtemp(prefix="pelican-publications")
+    f = open(dd+"/publicationnumbers.html", "w")
+    f.write("{{% set journalNos = '{}' %}}\n".format(len(articles)))
+    f.write("{{% set invitedNos = '{}' %}}\n".format(len(invited)))
+    f.write("{{% set conferenceNos = '{}' %}}\n".format(len(conferences)))
+    f.write("{{% set patentNos = '{}' %}}\n".format(len(patents)))
+    f.write("{{% set postdeadlineNos = '{}' %}}\n".format(len(pdp)))
+    f.close()
+    generator.settings['JINJA2CONTENT_TEMPLATES'] = [dd]
+    print(dd)
+
 
 def register():
-    signals.page_generator_context.connect(add_publications)
+    signals.generator_init.connect(add_publications)
