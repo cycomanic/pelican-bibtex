@@ -168,7 +168,8 @@ def add_publications(generator, metadata):
             bibdata_this = BibliographyData(entries={key: entry})
             Writer().write_stream(bibdata_this, bib_buf)
             text = formatted_entry.text.render(html_backend)
-            text = text.decode('ulatex').replace('{', '').replace('}', '')
+            #text = text.decode('ulatex').replace('{', '').replace('}', '')
+            text = codecs.decode(text, 'ulatex').replace('{', '').replace('}', '')
 
             if  bibtype is 'conference':
                 if 'postdeadline' in entry.fields.get('keywords'):
